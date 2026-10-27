@@ -1,0 +1,32 @@
+name: Build Auto cc
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: Build mod
+        run: ./gradlew --no-daemon build
+      - name: Upload JAR artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-cc-jars
+          path: build/libs/*.jar
+          if-no-files-found: error
